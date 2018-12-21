@@ -40,7 +40,7 @@
 <body>
 
 <div class="container-fluid">
-  <div class="row content">
+ 	 <div class="row content">
 		<div class="col-sm-3 sidenav">
 			<h4><%=session.getAttribute("name")%></h4>
 			<ul class="nav nav-pills nav-stacked">
@@ -50,18 +50,10 @@
 		</div>
 
    		 <div class="col-sm-9">
-			<h4><small>CHAT LIST</small></h4>
-			<hr>
-			<c:forEach items="${users}" var="user">
-			<div>
-				<a href="/chat/user/${user.getId()}">
-					<h6>${user.getName()} <span class="badge">4 </span></h6>
-				</a>
-			</div>
-			</c:forEach>
-	      
-    </div>
-  </div>
+			<h4><small><a>CHAT MESSAGES</small></h4>
+			<hr>	      
+    	</div>
+  	</div>
 </div>
 
 <footer class="container-fluid">

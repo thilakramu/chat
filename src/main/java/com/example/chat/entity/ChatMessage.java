@@ -16,11 +16,10 @@ import javax.persistence.Table;
 public class ChatMessage {
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private Integer id;
+    private Integer id;	
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name="from_id", referencedColumnName="id")
-	private User fromId;
+	@Column(name="from_id")
+	private Integer fromId;
 	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="to_id", referencedColumnName="id")
@@ -29,6 +28,9 @@ public class ChatMessage {
 	@Column(length=1056)
 	private String message;
 	
+	@Column(name="is_read")
+	private Boolean read;
+
 	@Column(name="created_on", nullable=true)
 	private Date createdOn;
 	
@@ -43,11 +45,11 @@ public class ChatMessage {
 		this.id = id;
 	}
 
-	public User getFromId() {
+	public Integer getFromId() {
 		return fromId;
 	}
 
-	public void setFromId(User fromId) {
+	public void setFromId(Integer fromId) {
 		this.fromId = fromId;
 	}
 
@@ -66,7 +68,15 @@ public class ChatMessage {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	
+	public Boolean getRead() {
+		return read;
+	}
 
+	public void setRead(Boolean read) {
+		this.read = read;
+	}
+	
 	public Date getCreatedOn() {
 		return createdOn;
 	}
