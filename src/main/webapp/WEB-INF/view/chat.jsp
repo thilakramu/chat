@@ -1,10 +1,9 @@
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Bootstrap Example</title>
+  <title>Chat Application</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -12,7 +11,9 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <style>
     /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
-    .row.content {height: 1500px}
+    .row.content {
+    	height: 600px;
+   	}
     
     /* Set gray background color and 100% height */
     .sidenav {
@@ -35,6 +36,17 @@
       }
       .row.content {height: auto;} 
     }
+    .form-group {
+    	display:flex;
+    }
+    .form-control-overwrite{
+    	width:75%;
+    }
+    .btn-overwrite{
+	    width:25%;
+	    margin-left:15px;
+    }
+    
   </style>
 </head>
 <body>
@@ -51,14 +63,18 @@
 
    		 <div class="col-sm-9">
 			<h4><small><a>CHAT MESSAGES</small></h4>
-			<hr>	      
+			<hr>	
+			
+			  <!-- <ul class="list-group">
+					<li class="list-group-item">First item</li>
+			  </ul> -->
+			  <div class="form-group col-md-8">
+				  <input type="text" class="form-control form-control-overwrite" id="usr"><span class="btn btn-sm btn-primary btn-overwrite">Submit</span>
+			  </div>
+			      
     	</div>
   	</div>
 </div>
-
-<footer class="container-fluid">
-  <p>Footer Text</p>
-</footer>
 <script>
 	/* if(typeof(EventSource) !== "undefined") {
 	  var source = new EventSource("http://localhost:8080/sseTest");

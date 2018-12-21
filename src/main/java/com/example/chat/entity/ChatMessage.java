@@ -21,9 +21,8 @@ public class ChatMessage {
 	@Column(name="from_id")
 	private Integer fromId;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name="to_id", referencedColumnName="id")
-	private User toId;
+	@Column(name="to_id")
+	private Integer toId;
 	
 	@Column(length=1056)
 	private String message;
@@ -53,11 +52,11 @@ public class ChatMessage {
 		this.fromId = fromId;
 	}
 
-	public User getToId() {
+	public Integer getToId() {
 		return toId;
 	}
 
-	public void setToId(User toId) {
+	public void setToId(Integer toId) {
 		this.toId = toId;
 	}
 
