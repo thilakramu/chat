@@ -28,7 +28,7 @@ public class ChatMessage {
 	private String message;
 	
 	@Column(name="is_read")
-	private Boolean read;
+	private Boolean read=false;
 
 	@Column(name="created_on", nullable=true)
 	private Date createdOn;

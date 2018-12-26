@@ -15,12 +15,22 @@ import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.example.chat.data.UserSession;
 import com.example.chat.entity.User;
 
 @Controller
 public class LoginController {
 	@Autowired
+	private UserSession userSession;
+	
+	@Autowired
     private EntityManager entityManager;
+	
+	@GetMapping("/")
+    public String home() {
+		        
+        return "redirect:/user/login";        
+    }
 	
 	@GetMapping("/user/login")
     public ModelAndView login() {
@@ -53,6 +63,12 @@ public class LoginController {
 		} else {
 			request.getSession().setAttribute("username",user.getEmail());
 			request.getSession().setAttribute("name",user.getName());
+			request.getSession().setAttribute("user_id",user.getId());
+			
+			userSession.setUserId(user.getId());
+			userSession.setEmail(user.getEmail());
+			userSession.setName(user.getName());
+			
 			return "redirect:dashboard";
 		}
 		
@@ -60,20 +76,23 @@ public class LoginController {
 	
 	@SuppressWarnings("unchecked")
 	@RequestMapping("/user/dashboard")
-	public ModelAndView dashboard() {
+	public ModelAndView dashboard(HttpSession session) {
+		Integer userId = (Integer) session.getAttribute("user_id");
 		Iterable<User> users = null;
 		ModelAndView mav = new ModelAndView();
         
 		try {
 			
-			String sql = "select u from User u";
+			String sql = "select u from User u where id != :id";
 			Query query = entityManager.createQuery(sql, User.class);
-			
+			query.setParameter("id", userId);
 			users = query.getResultList();
 		}
 		catch (NoResultException nre) {
 			//Ignore this because as per your logic this is ok!
 		}
+		
+		System.out.println(userSession.getEmail());
 		
 		mav.addObject("users", users);
         mav.setViewName("dashboard");

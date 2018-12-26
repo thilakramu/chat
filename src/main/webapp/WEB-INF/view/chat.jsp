@@ -6,9 +6,11 @@
   <title>Chat Application</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ 	
+	<link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <script src="/js/jquery.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	
   <style>
     /* Set height of the grid so .sidenav can be 100% (adjust if needed) */
     .row.content {
@@ -22,10 +24,9 @@
     }
     
     /* Set black background color, white text and some padding */
-    footer {
-      background-color: #555;
+    .otherdiv {
+      background-color: #eaeaea;
       color: white;
-      padding: 15px;
     }
     
     /* On small screens, set height to 'auto' for sidenav and grid */
@@ -56,7 +57,7 @@
 		<div class="col-sm-3 sidenav">
 			<h4><%=session.getAttribute("name")%></h4>
 			<ul class="nav nav-pills nav-stacked">
-				<li class="active"><a href="#section1">Home</a></li>
+				<li class="active"><a href="/user/dashboard">Home</a></li>
 				<li><a href="/user/logout">Logout</a></li>
 			</ul>
 		</div>
@@ -65,26 +66,87 @@
 			<h4><small><a>CHAT MESSAGES</small></h4>
 			<hr>	
 			
-			  <!-- <ul class="list-group">
+			  <!--<ul class="list-group">
+					<li class="list-group-item otherdiv">First item</li>
 					<li class="list-group-item">First item</li>
-			  </ul> -->
-			  <div class="form-group col-md-8">
-				  <input type="text" class="form-control form-control-overwrite" id="usr"><span class="btn btn-sm btn-primary btn-overwrite">Submit</span>
+			  </ul>-->
+			  <div class="col-md-8" >
+			  		<ul class="list-group" id="chat_list">
+			  		<c:forEach items="${chatList}" var="chat">
+			  		<c:choose>
+					    <c:when test="${chat.fromId == user_id}">
+					        <li class="list-group-item">${chat.message}</li>
+					    </c:when>    
+					    <c:otherwise>
+					        <li class="list-group-item otherdiv">${chat.message}</li>
+					    </c:otherwise>
+					</c:choose>
+
+			  					  			
+			  		</c:forEach>
+			  		</ul>
+			  </div>
+			  <div class="form-group col-md-8" id="input-div">
+				  <input type="text" class="form-control form-control-overwrite" id="message"><span class="btn btn-sm btn-primary btn-overwrite" onclick="save()">Submit</span>
 			  </div>
 			      
     	</div>
   	</div>
 </div>
 <script>
-	/* if(typeof(EventSource) !== "undefined") {
-	  var source = new EventSource("http://localhost:8080/sseTest");
-	  source.onmessage = function(event) {
-		  console.log(event);
-	    document.getElementById("result").innerHTML += event.data + "<br>";
-	  };
+	var from_id = parseInt("<%=session.getAttribute("user_id")%>");
+	if(typeof(EventSource) !== "undefined") {
+		var source = new EventSource("http://localhost:8080/chat/messages/unread");
+  		source.onmessage = function(event) {
+		  	console.log(JSON.parse(event.data));
+		  	var data = JSON.parse(event.data);
+		    var html = "";
+		  	for (var i=0; i<data.length; i++) {
+		  		if (from_id == data[i].from_id) {
+		  			html += '<li class="list-group-item">' + data[i].message + '</li>';
+		  		} else {
+		  			html += '<li class="list-group-item otherdiv">' + data[i].message + '</li>';
+		  		}
+		  		
+		  	}
+		  	
+		  	$("#chat_list").append(html);
+		  	
+			$('#input-div')[0].scrollIntoView(true);
+  		};
 	} else {
-	  document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
-	} */
+	  console.log("Sorry, your browser does not support server-sent events...");
+	}
+	
+	
+	function save() {
+		var to_id = "${to_id}";
+		var message = $("#message").val();
+		$("#message").val("");
+		
+		$.ajax({
+			url:"/chat/save",
+			type:"POST",
+			data:{
+				to_id: to_id,
+				message: message
+			}
+		}).done(function(json) {
+			$("#chat_list").append('<li class="list-group-item">' + message + '</li>');
+			console.log(json);
+		}).fail(function(xhr){
+			console.log(xhr);
+		});
+	}
+	
+	document.querySelector("#message").addEventListener("keypress", function(e) {
+		var key = e.which || e.keyCode;
+		if (key == 13) {
+			save();
+		}
+	});
+		
+	
 </script>
 </body>
 </html>

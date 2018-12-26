@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +25,15 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.entity.ChatMessage;
-import com.example.chat.entity.User;
+import com.example.chat.model.ChatModel;
 
 @Controller
 public class ChatController {
 	@Autowired
     private EntityManager entityManager;
+	
+	@Autowired 	
+	private ChatModel chatModel;
 
 	@RequestMapping("/sseTest")
     public ResponseBodyEmitter handleRequest () {
@@ -54,14 +58,21 @@ public class ChatController {
     }
 	
 	@RequestMapping("/chat/user/{id}")
-	public String chatWithUser(@PathVariable Integer id ) {
+	public String chatWithUser(@PathVariable Integer id, Model model, HttpServletRequest request) {
+		model.addAttribute("to_id", id);
+		//System.out.println(userSession.getEmail());
+		Iterable<ChatMessage> chatList = chatModel.chatListByUser(request);		
+		model.addAttribute("chatList", chatList);
+		
 		return "chat";
 		
 	}
 	
 	@RequestMapping("/chat/save")
-	public @ResponseBody CustomApiResponse saveChat() {
-		
+	public @ResponseBody CustomApiResponse saveChat(HttpServletRequest request) {
+		Integer toId = Integer.parseInt(request.getParameter("to_id"));
+		String message = request.getParameter("message");
+		chatModel.save(toId, message, request);
 		return new CustomApiResponse(true, "saved successfully", false);
 	}
 	
@@ -77,7 +88,43 @@ public class ChatController {
 		} catch (NoResultException e) {
 			return null;
 		}
-		
-	
 	}
+	
+	@RequestMapping("/chat/messages/unread")
+    public ResponseBodyEmitter chatMessagesUnread(HttpServletRequest request) {
+		//Iterable<ChatMessage> chatMessages = ChatMessageRepository.findAll();
+		
+		String sql = "select cm from ChatMessage cm where (to_id=:from_id) and read=0";
+		Query query = entityManager.createQuery(sql, ChatMessage.class);
+		query.setParameter("from_id", request.getSession().getAttribute("user_id"));
+		
+		@SuppressWarnings("unchecked")
+		Iterable<ChatMessage> chatMessages = query.getResultList();
+		
+		if (chatMessages != null) {
+			for (ChatMessage message : chatMessages) {
+				if (!message.getRead()) {
+					chatModel.update(message.getId());
+				}
+			}
+		} 
+
+        final SseEmitter emitter = new SseEmitter();
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        service.execute(() -> {
+            
+	        try {
+	            emitter.send(chatMessages, MediaType.ALL);
+	
+	            Thread.sleep(200);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            emitter.completeWithError(e);
+	            return;
+	        }
+            emitter.complete();
+        });
+
+        return emitter;
+    }
 }
