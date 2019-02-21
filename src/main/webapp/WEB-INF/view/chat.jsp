@@ -95,8 +95,9 @@
 </div>
 <script>
 	var from_id = parseInt("<%=session.getAttribute("user_id")%>");
+	var to_id = "${to_id}";
 	if(typeof(EventSource) !== "undefined") {
-		var source = new EventSource("http://localhost:8080/chat/messages/unread");
+		var source = new EventSource("http://localhost:8080/chat/messages/unread/"+to_id);
   		source.onmessage = function(event) {
 		  	console.log(JSON.parse(event.data));
 		  	var data = JSON.parse(event.data);

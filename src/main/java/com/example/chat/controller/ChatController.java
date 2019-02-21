@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.chat.data.CustomApiResponse;
+import com.example.chat.data.UserSession;
 import com.example.chat.entity.ChatMessage;
 import com.example.chat.model.ChatModel;
 
@@ -35,6 +36,9 @@ public class ChatController {
 	@Autowired 	
 	private ChatModel chatModel;
 
+	@Autowired
+	private UserSession userSession;
+	
 	@RequestMapping("/sseTest")
     public ResponseBodyEmitter handleRequest () {
 
@@ -63,7 +67,9 @@ public class ChatController {
 		//System.out.println(userSession.getEmail());
 		Iterable<ChatMessage> chatList = chatModel.chatListByUser(request);		
 		model.addAttribute("chatList", chatList);
+		System.out.println("share session "+userSession.getEmail());
 		
+		System.out.println("share original session "+ request.getSession().getAttribute("user_id"));
 		return "chat";
 		
 	}
@@ -90,13 +96,14 @@ public class ChatController {
 		}
 	}
 	
-	@RequestMapping("/chat/messages/unread")
-    public ResponseBodyEmitter chatMessagesUnread(HttpServletRequest request) {
+	@RequestMapping("/chat/messages/unread/{id}")
+    public ResponseBodyEmitter chatMessagesUnread(HttpServletRequest request, @PathVariable Integer id) {
 		//Iterable<ChatMessage> chatMessages = ChatMessageRepository.findAll();
 		
-		String sql = "select cm from ChatMessage cm where (to_id=:from_id) and read=0";
+		String sql = "select cm from ChatMessage cm where to_id=:to_id and from_id=:from_id and read=0";
 		Query query = entityManager.createQuery(sql, ChatMessage.class);
-		query.setParameter("from_id", request.getSession().getAttribute("user_id"));
+		query.setParameter("to_id", request.getSession().getAttribute("user_id"));
+		query.setParameter("from_id", id);
 		
 		@SuppressWarnings("unchecked")
 		Iterable<ChatMessage> chatMessages = query.getResultList();
@@ -127,4 +134,23 @@ public class ChatController {
 
         return emitter;
     }
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping(path="/chat/messages/history/user")
+	public @ResponseBody Iterable<ChatMessage> chatHistoryByUser(HttpServletRequest request, @RequestParam Integer other_user_id, @RequestParam Integer start , @RequestParam Integer end) {
+		Integer userId = (Integer) request.getSession().getAttribute("user_id");
+		try {
+			String sql = "select cm from ChatMessage cm where (from_id=:user_id or to_id=:user_id) and (from_id=:other_user_id or to_id=:other_user_id)";
+			Query query = entityManager.createQuery(sql, ChatMessage.class);
+			query.setParameter("user_id", userId);
+			query.setParameter("other_user_id", other_user_id);
+			query.setFirstResult(start);
+			query.setMaxResults(end);
+			return query.getResultList();			
+			
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+	
 }
