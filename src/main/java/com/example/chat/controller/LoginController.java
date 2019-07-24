@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -15,11 +17,23 @@ import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
 import com.example.chat.entity.User;
 
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @Controller
 public class LoginController {
+	
+	private static String UPLOADED_FOLDER = "F://temp//";
+	
 	@Autowired
 	private UserSession userSession;
 	
@@ -105,5 +119,40 @@ public class LoginController {
 		session.invalidate();
 		return "redirect:login";
 	}
+	
+	@GetMapping("/user/upload/image")
+    public ModelAndView uploadImage() {
+		ModelAndView mav = new ModelAndView();
+        mav.setViewName("upload-image");
+        
+        return mav;        
+    }
+	
+	@PostMapping("/user/upload/image") // //new annotation since 4.3
+    public @ResponseBody CustomApiResponse singleFileUpload(@RequestParam("file") MultipartFile file,
+                                   RedirectAttributes redirectAttributes) {
+
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
+            return new CustomApiResponse(false, "Please select a file to upload", true);
+        }
+
+        try {
+
+            // Get the file and save it somewhere
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+            Files.write(path, bytes);
+
+            redirectAttributes.addFlashAttribute("message",
+                    "You successfully uploaded '" + file.getOriginalFilename() + "'");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new CustomApiResponse(true, "profile photo uploaded successfully", false);
+    }
+
 
 }
