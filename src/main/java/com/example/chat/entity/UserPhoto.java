@@ -33,10 +33,13 @@ public class UserPhoto {
 	private String fileType;
 	
 	@Column(name="file_size", nullable=true)
-	private String fileSize;
+	private Long fileSize;
 	
 	@Column(name="file_ext", nullable=true)
 	private String fileExt;
+	
+	@Column(name="file_name", nullable=true)
+	private String fileName;
 	
 	@Column(name="width", nullable=true)
 	private Integer width;
@@ -90,11 +93,11 @@ public class UserPhoto {
 		this.fileType = fileType;
 	}
 
-	public String getFileSize() {
+	public Long getFileSize() {
 		return fileSize;
 	}
 
-	public void setFileSize(String fileSize) {
+	public void setFileSize(Long fileSize) {
 		this.fileSize = fileSize;
 	}
 
@@ -106,6 +109,14 @@ public class UserPhoto {
 		this.fileExt = fileExt;
 	}
 
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	
 	public Integer getWidth() {
 		return width;
 	}

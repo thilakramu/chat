@@ -20,6 +20,9 @@ import javax.servlet.http.HttpSession;
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
 import com.example.chat.entity.User;
+import com.example.chat.entity.UserPhoto;
+import com.example.chat.entity.UserPhotoRepository;
+import com.example.chat.service.UserService;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -28,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 @Controller
 public class LoginController {
@@ -39,6 +43,12 @@ public class LoginController {
 	
 	@Autowired
     private EntityManager entityManager;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private UserPhotoRepository userPhotoRepository;
 	
 	@GetMapping("/")
     public String home() {
@@ -121,7 +131,11 @@ public class LoginController {
 	}
 	
 	@GetMapping("/user/upload/image")
-    public ModelAndView uploadImage() {
+    public ModelAndView uploadImage(HttpServletRequest request) {
+		Integer userId = (Integer) request.getSession().getAttribute("user_id");
+		
+		User user = userService.getUserById(userId);
+		
 		ModelAndView mav = new ModelAndView();
         mav.setViewName("upload-image");
         
@@ -130,7 +144,7 @@ public class LoginController {
 	
 	@PostMapping("/user/upload/image") // //new annotation since 4.3
     public @ResponseBody CustomApiResponse singleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes) {
+                                   RedirectAttributes redirectAttributes, HttpServletRequest request) {
 
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
@@ -143,6 +157,21 @@ public class LoginController {
             byte[] bytes = file.getBytes();
             Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
             Files.write(path, bytes);
+            
+            Integer userId = (Integer) request.getSession().getAttribute("user_id");
+    		
+    		User user = userService.getUserById(userId);
+            
+            UserPhoto up = new UserPhoto();
+            up.setUser(user);
+            up.setFilePath(UPLOADED_FOLDER + file.getOriginalFilename());
+            up.setFileSize(file.getSize());
+            up.setFileType(file.getContentType());
+            up.setFileName(file.getOriginalFilename());
+            up.setCreatedOn(new Date());
+            up.setUpdatedOn(new Date());
+            
+    		userPhotoRepository.save(up);
 
             redirectAttributes.addFlashAttribute("message",
                     "You successfully uploaded '" + file.getOriginalFilename() + "'");
