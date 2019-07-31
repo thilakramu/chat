@@ -24,7 +24,7 @@ public class ChatMessage {
 	@Column(name="to_id")
 	private Integer toId;
 	
-	@Column(length=1056)
+	@Column(length=1056, nullable=true)
 	private String message;
 	
 	@Column(name="is_read")
@@ -36,6 +36,13 @@ public class ChatMessage {
 	@Column(name="updated_on", nullable=true)
 	private Date updatedOn;	
 	
+	@Column(name="has_file", nullable=true)
+	private Boolean hasFile;
+	
+	@ManyToOne()
+	@JoinColumn(name="file_id", referencedColumnName="id")
+	private UserPrivateFile file;
+
 	public Integer getId() {
 		return id;
 	}
@@ -90,6 +97,22 @@ public class ChatMessage {
 
 	public void setUpdatedOn(Date updatedOn) {
 		this.updatedOn = updatedOn;
+	}
+	
+	public Boolean getHasFile() {
+		return hasFile;
+	}
+
+	public void setHasFile(Boolean hasFile) {
+		this.hasFile = hasFile;
+	}
+
+	public UserPrivateFile getFile() {
+		return file;
+	}
+
+	public void setFile(UserPrivateFile file) {
+		this.file = file;
 	}
 
 }
