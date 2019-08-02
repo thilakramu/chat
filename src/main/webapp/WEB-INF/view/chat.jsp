@@ -87,7 +87,13 @@
 			  		</ul>
 			  </div>
 			  <div class="form-group col-md-8" id="input-div">
+			  	
 				  <input type="text" class="form-control form-control-overwrite" id="message"><span class="btn btn-sm btn-primary btn-overwrite" onclick="save()">Submit</span>
+			  	<form id="chatForm" enctype="multipart/form-data" method="post" action="/chat/upload/file">
+			  	<input type="hidden" name="to_id" value="${to_id}">
+			  		<input id="upFile" name="file" type="file">
+			  		<input type="submit">
+			  	</form>
 			  </div>
 			      
     	</div>
@@ -132,6 +138,27 @@
 				to_id: to_id,
 				message: message
 			}
+		}).done(function(json) {
+			$("#chat_list").append('<li class="list-group-item">' + message + '</li>');
+			console.log(json);
+		}).fail(function(xhr){
+			console.log(xhr);
+		});
+	}
+	
+	
+	function fileUp() {
+		var to_id = "${to_id}";
+		
+		var form = $("#chatForm")[0];
+		var data = new FormData(form);
+		$.ajax({
+			url:"/chat/upload/file",
+			type:"POST",
+			enctype:"multipart/form-data",
+			data:data,
+			cache:false,
+			processData: false
 		}).done(function(json) {
 			$("#chat_list").append('<li class="list-group-item">' + message + '</li>');
 			console.log(json);

@@ -17,11 +17,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
@@ -152,5 +155,16 @@ public class ChatController {
 			return null;
 		}
 	}
+	
+	@PostMapping("/chat/upload/file") // //new annotation since 4.3
+    public @ResponseBody CustomApiResponse singleFileUpload(@RequestParam("file") MultipartFile file,
+                                   RedirectAttributes redirectAttributes, HttpServletRequest request) {	
+		
+		if (chatModel.saveFile(file, request)) {
+			 return new CustomApiResponse(true, "profile photo uploaded successfully", false);
+		} else {
+			 return new CustomApiResponse(false, "profile photo uploaded successfully", true);
+		}
+    }
 	
 }

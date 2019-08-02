@@ -7,11 +7,23 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
+import java.util.UUID;
 
 import com.example.chat.entity.ChatMessage;
 import com.example.chat.entity.ChatMessageRepository;
+import com.example.chat.entity.User;
+import com.example.chat.entity.UserPhoto;
+import com.example.chat.entity.UserPrivateFile;
+import com.example.chat.entity.UserPrivateFileRepository;
+import com.example.chat.entity.UserRepository;
+import com.example.chat.service.UserService;
 
 
 @Component
@@ -21,6 +33,14 @@ public class ChatModel {
 	
 	@Autowired
 	private ChatMessageRepository ChatMessageRepository; 
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private UserPrivateFileRepository userPrivateFileRepository;
+	
+	private static String UPLOADED_FOLDER = "F://temp//";
 	
 	public Boolean save(Integer toId, String message, HttpServletRequest request) {
 		Integer fromId = (Integer) request.getSession().getAttribute("user_id");		
@@ -32,6 +52,67 @@ public class ChatModel {
 		n.setCreatedOn(new Date());
 		n.setUpdatedOn(new Date());
 		ChatMessageRepository.save(n);
+		return true;
+	}
+	
+	
+	public Boolean saveFile(MultipartFile file, HttpServletRequest request) {
+		
+		Integer toId = Integer.parseInt(request.getParameter("to_id"));
+		
+		if (file.isEmpty()) {         
+            return false;
+        }
+
+        try {
+        	
+        	String fileName = file.getOriginalFilename();     	
+        	
+        	int i = fileName.lastIndexOf('.');
+        	String fileExt = fileName.substring(i);
+        	
+        	UUID uuid = UUID.randomUUID();
+    		String randomUUIDString = uuid.toString();
+    		String filePath = UPLOADED_FOLDER + randomUUIDString + fileExt;
+    		String newFileName = randomUUIDString + fileExt;
+
+            // Get the file and save it somewhere
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(filePath);
+            Files.write(path, bytes);
+            
+            Integer userId = (Integer) request.getSession().getAttribute("user_id");
+    		
+    		User user = userService.getUserById(userId);
+    		            
+    		UserPrivateFile up = new UserPrivateFile();
+            up.setUser(user);
+            up.setUuid(randomUUIDString);
+            up.setFileExt(fileExt);
+            up.setFilePath(filePath);
+            up.setFileSize(file.getSize());
+            up.setFileType(file.getContentType());
+            up.setFileName(newFileName);
+            up.setCreatedOn(new Date());
+            up.setUpdatedOn(new Date());
+    	
+    		ChatMessage n = new ChatMessage();
+    		n.setFromId(userId);
+    		n.setToId(toId);
+    		n.setFile(up);
+    		n.setHasFile(true);
+    		n.setCreatedOn(new Date());
+    		n.setUpdatedOn(new Date());
+    		
+    		userPrivateFileRepository.save(up);
+    		ChatMessageRepository.save(n);   
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            return false;
+        }
+		
 		return true;
 	}
 	
