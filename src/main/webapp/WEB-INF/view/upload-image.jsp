@@ -52,9 +52,9 @@
    		 <div class="col-sm-9">
 			<h4><small>Upload Image</small></h4>
 			<hr>
-			<form method="POST" action="/user/upload/image" enctype="multipart/form-data">
-    <input type="file" name="file" /><br/><br/>
-    <input type="submit" value="Submit" />
+			<form method="POST" action="/user/upload/image" enctype="multipart/form-data" id="profilePic">
+    <input type="file" name="file" onchange="fileUp();"/><br/><br/>
+    <!--<input type="submit" value="Submit" />-->
 </form>
 
 			
@@ -65,6 +65,28 @@
 <footer class="container-fluid">
   <p>Footer Text</p>
 </footer>
+
+<script>
+	function fileUp() {
+		var to_id = "${to_id}";
+		
+		var form = $("#profilePic")[0];
+		var data = new FormData(form);
+		$.ajax({
+			url:"/user/upload/image",
+			type:"POST",
+			enctype:"multipart/form-data",
+			data:data,
+			cache:false,
+			processData: false,
+			contentType: false
+		}).done(function(json) {
+			console.log(json);
+		}).fail(function(xhr){
+			console.log(xhr);
+		});
+	}
+</script>
 </body>
 </html>
 

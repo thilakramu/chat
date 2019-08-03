@@ -7,12 +7,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.chat.Util;
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.entity.User;
 import com.example.chat.entity.UserRepository;
@@ -37,14 +39,16 @@ public class UserPhotoService {
 	@Autowired
 	private UserPhotoRepository userPhotoRepository;
 	
-	private static String UPLOADED_FOLDER = "F://temp//";
+	@Autowired
+	private Environment environment;
+	
 	
 	public Boolean save(MultipartFile file, HttpServletRequest request) {
 		
 		if (file.isEmpty()) {         
             return false;
         }
-
+System.out.println("image path:"+environment.getProperty("imagepath"));
         try {
         	
         	String fileName = file.getOriginalFilename();     	
@@ -54,7 +58,7 @@ public class UserPhotoService {
         	
         	UUID uuid = UUID.randomUUID();
     		String randomUUIDString = uuid.toString();
-    		String filePath = UPLOADED_FOLDER + randomUUIDString + fileExt;
+    		String filePath = environment.getProperty("imagepath") + randomUUIDString + fileExt;
     		String newFileName = randomUUIDString + fileExt;
 
             // Get the file and save it somewhere

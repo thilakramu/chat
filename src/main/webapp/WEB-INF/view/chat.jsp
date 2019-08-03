@@ -89,7 +89,10 @@
 			  <div class="form-group col-md-8" id="input-div">
 			  	
 				  <input type="text" class="form-control form-control-overwrite" id="message"><span class="btn btn-sm btn-primary btn-overwrite" onclick="save()">Submit</span>
-			  	<form id="chatForm" enctype="multipart/form-data" method="post" action="/chat/upload/file">
+			  </div>
+			  
+			  <div class="form-group col-md-8">
+			   	<form id="chatForm" enctype="multipart/form-data" method="post" action="/chat/upload/file">
 			  	<input type="hidden" name="to_id" value="${to_id}">
 			  		<input id="upFile" name="file" type="file">
 			  		<input type="submit">

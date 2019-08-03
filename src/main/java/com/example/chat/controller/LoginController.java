@@ -60,7 +60,7 @@ public class LoginController {
 		User user = null;
 		try {
 			String username = request.getParameter("username");
-			/*String password = request.getParameter("password");*/
+			String password = request.getParameter("password");
 			
 			String sql = "select u from User u where u.email=:username";
 			Query query = entityManager.createQuery(sql, User.class);
