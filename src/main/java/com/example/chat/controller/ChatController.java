@@ -160,6 +160,8 @@ public class ChatController {
     public @ResponseBody CustomApiResponse singleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes, HttpServletRequest request) {	
 		
+		//test file
+		
 		if (chatModel.saveFile(file, request)) {
 			 return new CustomApiResponse(true, "profile photo uploaded successfully", false);
 		} else {

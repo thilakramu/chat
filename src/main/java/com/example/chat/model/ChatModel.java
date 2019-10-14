@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +41,9 @@ public class ChatModel {
 	@Autowired
 	private UserPrivateFileRepository userPrivateFileRepository;
 	
+	@Autowired
+	private Environment environment;
+	
 	private static String UPLOADED_FOLDER = "F://temp//";
 	
 	public Boolean save(Integer toId, String message, HttpServletRequest request) {
@@ -73,7 +77,7 @@ public class ChatModel {
         	
         	UUID uuid = UUID.randomUUID();
     		String randomUUIDString = uuid.toString();
-    		String filePath = UPLOADED_FOLDER + randomUUIDString + fileExt;
+    		String filePath = environment.getProperty("imagepath") + '/' + randomUUIDString + fileExt;
     		String newFileName = randomUUIDString + fileExt;
 
             // Get the file and save it somewhere
