@@ -1,7 +1,11 @@
 package com.example.chat.controller;
 
 import java.time.LocalTime;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,6 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.chat.data.ChatData;
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
 import com.example.chat.entity.ChatMessage;
@@ -168,5 +173,147 @@ public class ChatController {
 			 return new CustomApiResponse(false, "profile photo uploaded successfully", true);
 		}
     }
+	
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping(path="/chat/messages/by/user")
+	public @ResponseBody HashMap<String, HashMap<Integer, ChatMessage>> chatByUser(HttpServletRequest request, @RequestParam Integer start , @RequestParam Integer end) {
+		Integer userId = (Integer) request.getSession().getAttribute("user_id");
+		try {
+			String sql = "select cm from ChatMessage cm where (from_id=:user_id or to_id=:user_id)";
+			Query query = entityManager.createQuery(sql, ChatMessage.class);
+			query.setParameter("user_id", userId);
+			query.setFirstResult(start);
+			query.setMaxResults(end);
+	
+	
+			Iterable<ChatMessage> chatMessages = query.getResultList();
+			
+			HashMap<String, HashMap<Integer, ChatMessage>> data = new HashMap<String, HashMap<Integer, ChatMessage>>();
+			
+			if (chatMessages != null) {
+				for (ChatMessage message : chatMessages) {
+					if (message.getRead()) {
+						if ( !data.containsKey("readMessages") ) {
+							data.put("readMessages",  new HashMap<Integer, ChatMessage>());
+						}
+						
+						data.get("readMessages").put(message.getId(), message);
+					} else {
+						if ( !data.containsKey("unreadMessages") ) {
+							data.put("unreadMessages",  new HashMap<Integer, ChatMessage>());
+						}
+						
+						data.get("unreadMessages").put(message.getId(), message);
+					}
+				}
+			}
+			
+			//data.put("count", data.get("unreadMessages").size());
+			
+			System.out.println("count of unread message - " + data.get("unreadMessages").size() );
+			
+			return data;
+			
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping(path="/chat/messages/by/user/new")
+	public @ResponseBody HashMap<String, Object> chatByUserNew(HttpServletRequest request, @RequestParam Integer start , @RequestParam Integer end) {
+		Integer userId = (Integer) request.getSession().getAttribute("user_id");
+		try {
+			String sql = "select cm from ChatMessage cm where (from_id=:user_id or to_id=:user_id)";
+			Query query = entityManager.createQuery(sql, ChatMessage.class);
+			query.setParameter("user_id", userId);
+			query.setFirstResult(start);
+			query.setMaxResults(end);
+	
+	
+			Iterable<ChatMessage> chatMessages = query.getResultList();
+			
+			HashMap<String, Object> data = new HashMap<String, Object>();
+			
+			if (chatMessages != null) {
+				for (ChatMessage message : chatMessages) {
+					if (message.getRead()) {
+						if ( !data.containsKey("readMessages") ) {
+							data.put("readMessages",  new HashMap<Integer, ChatMessage>());
+						}
+						
+						((Map<Integer, ChatMessage>) data.get("readMessages")).put(message.getId(), message);
+					} else {
+						if ( !data.containsKey("unreadMessages") ) {
+							data.put("unreadMessages",  new HashMap<Integer, ChatMessage>());
+						}
+						
+						((Map<Integer,ChatMessage>) data.get("unreadMessages")).put(message.getId(), message);
+					}
+				}
+			}
+			
+			
+			return data;
+			
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping(path="/chat/messages/by/user/new2")
+	public @ResponseBody HashMap<Integer, Object> chatByUserNew2(HttpServletRequest request, @RequestParam Integer start , @RequestParam Integer end) {
+		Integer userId = (Integer) request.getSession().getAttribute("user_id");
+		try {
+			String sql = "select cm from ChatMessage cm where (from_id=:user_id or to_id=:user_id)";
+			Query query = entityManager.createQuery(sql, ChatMessage.class);
+			query.setParameter("user_id", userId);
+			query.setFirstResult(start);
+			query.setMaxResults(end);
+	
+	
+			Iterable<ChatMessage> chatMessages = query.getResultList();
+			
+			HashMap<Integer, Object> data = new HashMap<Integer, Object>();
+			
+			if (chatMessages != null) {
+				for (ChatMessage message : chatMessages) {
+					if (message.getRead()) {
+						if (!data.containsKey(message.getToId())) {
+							data.put(message.getToId(), new HashMap<String, Object>());
+						}
+						
+						if ( !((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).containsKey("readMessages") ) {
+							((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).put("readMessages",  new ArrayList<Object>());
+						}
+						
+						((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).get("readMessages").add(message);
+						
+						
+					} else {
+						if (!data.containsKey(message.getToId())) {
+							data.put(message.getToId(), new HashMap<String, Object>());
+						}
+						
+						if ( !((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).containsKey("unreadMessages") ) {
+							((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).put("unreadMessages",  new ArrayList<Object>());
+						}
+						
+						((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).get("unreadMessages").add(message);
+					}
+				}
+			}
+			
+			return data;
+			
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+	
 	
 }
