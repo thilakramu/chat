@@ -282,10 +282,11 @@ public class ChatController {
 			
 			if (chatMessages != null) {
 				for (ChatMessage message : chatMessages) {
+					if (!data.containsKey(message.getToId())) {
+						data.put(message.getToId(), new HashMap<String, Object>());
+					}
+					
 					if (message.getRead()) {
-						if (!data.containsKey(message.getToId())) {
-							data.put(message.getToId(), new HashMap<String, Object>());
-						}
 						
 						if ( !((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).containsKey("readMessages") ) {
 							((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).put("readMessages",  new ArrayList<Object>());
@@ -294,10 +295,7 @@ public class ChatController {
 						((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).get("readMessages").add(message);
 						
 						
-					} else {
-						if (!data.containsKey(message.getToId())) {
-							data.put(message.getToId(), new HashMap<String, Object>());
-						}
+					} else {						
 						
 						if ( !((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).containsKey("unreadMessages") ) {
 							((HashMap<String, ArrayList<Object>>) data.get(message.getToId())).put("unreadMessages",  new ArrayList<Object>());
