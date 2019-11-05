@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity // This tells Hibernate to make a table out of this class
 @Table(name="user_private_files")
-public class UserPrivateFile {
+public class UserPrivateFile extends Tracked {
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;	
@@ -136,28 +136,6 @@ public class UserPrivateFile {
 	public void setIsPublic(Boolean isPublic) {
 		this.isPublic = isPublic;
 	}
-
-	public Date getCreatedOn() {
-		return createdOn;
-	}
-
-	public void setCreatedOn(Date createdOn) {
-		this.createdOn = createdOn;
-	}
-
-	public Date getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Date updatedOn) {
-		this.updatedOn = updatedOn;
-	}
-
-	@Column(name="created_on", nullable=true)
-	private Date createdOn;
-	
-	@Column(name="updated_on", nullable=true)
-	private Date updatedOn;	
 
 
 }

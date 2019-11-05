@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity // This tells Hibernate to make a table out of this class
 @Table(name="user_photos")
-public class UserPhoto {
+public class UserPhoto extends Tracked {
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;	
@@ -45,13 +45,7 @@ public class UserPhoto {
 	private Integer width;
 	
 	@Column(name="height", nullable=true)
-	private Integer height;
-	
-	@Column(name="created_on", nullable=true)
-	private Date createdOn;
-	
-	@Column(name="updated_on", nullable=true)
-	private Date updatedOn;	
+	private Integer height;	
 	
 	public Integer getId() {
 		return id;
@@ -131,21 +125,5 @@ public class UserPhoto {
 
 	public void setHeight(Integer height) {
 		this.height = height;
-	}
-	
-	public Date getCreatedOn() {
-		return createdOn;
-	}
-
-	public void setCreatedOn(Date createdOn) {
-		this.createdOn = createdOn;
-	}
-
-	public Date getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Date updatedOn) {
-		this.updatedOn = updatedOn;
 	}
 }

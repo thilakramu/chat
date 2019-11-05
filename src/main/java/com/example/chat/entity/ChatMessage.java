@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity // This tells Hibernate to make a table out of this class
 @Table(name="chat_messages")
-public class ChatMessage {
+public class ChatMessage extends Tracked {
 	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;	
@@ -29,12 +29,6 @@ public class ChatMessage {
 	
 	@Column(name="is_read")
 	private Boolean read=false;
-
-	@Column(name="created_on", nullable=true)
-	private Date createdOn;
-	
-	@Column(name="updated_on", nullable=true)
-	private Date updatedOn;	
 	
 	@Column(name="has_file", nullable=true)
 	private Boolean hasFile;
@@ -82,23 +76,7 @@ public class ChatMessage {
 	public void setRead(Boolean read) {
 		this.read = read;
 	}
-	
-	public Date getCreatedOn() {
-		return createdOn;
-	}
 
-	public void setCreatedOn(Date createdOn) {
-		this.createdOn = createdOn;
-	}
-
-	public Date getUpdatedOn() {
-		return updatedOn;
-	}
-
-	public void setUpdatedOn(Date updatedOn) {
-		this.updatedOn = updatedOn;
-	}
-	
 	public Boolean getHasFile() {
 		return hasFile;
 	}
