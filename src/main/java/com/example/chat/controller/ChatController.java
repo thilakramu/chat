@@ -30,6 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.chat.AppProperties;
 import com.example.chat.data.ChatData;
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
@@ -46,6 +47,9 @@ public class ChatController {
 
 	@Autowired
 	private UserSession userSession;
+	
+	@Autowired
+	private AppProperties appProperties;
 	
 	@RequestMapping("/sseTest")
     public ResponseBodyEmitter handleRequest () {
@@ -78,6 +82,8 @@ public class ChatController {
 		System.out.println("share session "+userSession.getEmail());
 		
 		System.out.println("share original session "+ request.getSession().getAttribute("user_id"));
+		
+		System.out.println(appProperties.getName());
 		return "chat";
 		
 	}
