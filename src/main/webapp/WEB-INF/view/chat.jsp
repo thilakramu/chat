@@ -92,10 +92,9 @@
 			  </div>
 			  
 			  <div class="form-group col-md-8">
-			   	<form id="chatForm" enctype="multipart/form-data" method="post" action="/chat/upload/file">
+			   	<form id="chatForm" method="post" action="/chat/upload/file" enctype="multipart/form-data">
 			  	<input type="hidden" name="to_id" value="${to_id}">
-			  		<input id="upFile" name="file" type="file">
-			  		<input type="submit">
+			  		<input id="upFile" name="file" type="file" onchange="fileUp();">
 			  	</form>
 			  </div>
 			      
@@ -161,9 +160,11 @@
 			enctype:"multipart/form-data",
 			data:data,
 			cache:false,
-			processData: false
+			processData: false,
+			contentType: false
 		}).done(function(json) {
-			$("#chat_list").append('<li class="list-group-item">' + message + '</li>');
+			console.log(json);
+			$("#chat_list").append('<li class="list-group-item"><img src="/uploads/'+json.filename+'"></li>');
 			console.log(json);
 		}).fail(function(xhr){
 			console.log(xhr);

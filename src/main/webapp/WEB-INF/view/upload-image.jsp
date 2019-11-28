@@ -55,6 +55,7 @@
 			<form method="POST" action="/user/upload/image" enctype="multipart/form-data" id="profilePic">
     <input type="file" name="file" onchange="fileUp();"/><br/><br/>
     <!--<input type="submit" value="Submit" />-->
+    <!-- <button type="button" onclick="fileUp();">Save</button> -->
 </form>
 
 			

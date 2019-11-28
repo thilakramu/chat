@@ -51,6 +51,30 @@ public class ChatController {
 	@Autowired
 	private AppProperties appProperties;
 	
+	@RequestMapping("/threads")
+	@ResponseBody
+    public CustomApiResponse playThread() {
+
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        service.execute(() -> {
+            
+	        try {
+	            	
+	            Thread.sleep(20000);
+	            
+	            System.out.println("This will print after 20 seconds");
+	            System.out.println(Thread.currentThread().getName());
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            
+	        }
+            
+        });
+
+        return new CustomApiResponse(true, "saved successfully", false);
+    }
+	
+	
 	@RequestMapping("/sseTest")
     public ResponseBodyEmitter handleRequest () {
 
@@ -167,16 +191,22 @@ public class ChatController {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@PostMapping("/chat/upload/file") // //new annotation since 4.3
-    public @ResponseBody CustomApiResponse singleFileUpload(@RequestParam("file") MultipartFile file,
+    public @ResponseBody Object singleFileUpload(@RequestParam("file") MultipartFile file,
                                    RedirectAttributes redirectAttributes, HttpServletRequest request) {	
 		
 		//test file
 		
+		HashMap<String, Object> data = new HashMap<String, Object>();
+		
 		if (chatModel.saveFile(file, request)) {
-			 return new CustomApiResponse(true, "profile photo uploaded successfully", false);
+			
+			 data = (HashMap<String, Object>) request.getSession().getAttribute("fileUpData");
+			
+			 return data;
 		} else {
-			 return new CustomApiResponse(false, "profile photo uploaded successfully", true);
+			 return new CustomApiResponse(false, "File uploaded failed", true);
 		}
     }
 	

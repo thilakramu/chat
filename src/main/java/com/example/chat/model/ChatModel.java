@@ -11,10 +11,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 
 import com.example.chat.entity.ChatMessage;
@@ -110,6 +112,21 @@ public class ChatModel {
     		
     		userPrivateFileRepository.save(up);
     		ChatMessageRepository.save(n);   
+    		
+    		System.out.println("id " + up.getId());
+    		
+    		HashMap<String, Object> data = new HashMap<String, Object>();
+    		
+    		data.put("success", true);
+    		data.put("messaage", "Uploaded successfully");
+    		data.put("filepath", up.getFilePath());
+    		data.put("filetype", up.getFileType());
+    		data.put("fileext", up.getFileExt());
+    		data.put("filename", up.getFileName());
+    		data.put("absolute_url", InetAddress.getLocalHost().getHostName() + "/uploads/" + up.getFileName());
+    		
+			request.getSession().setAttribute("fileUpData", data);
+    		
             
         } catch (IOException e) {
             e.printStackTrace();
