@@ -1,5 +1,7 @@
 package com.example.chat.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalTime;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -15,10 +17,15 @@ import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -347,7 +354,18 @@ public class ChatController {
 		} catch (NoResultException e) {
 			return null;
 		}
-	}
+	}	
 	
+	
+	@RequestMapping(value = "/download/file",
+            produces = MediaType.ALL_VALUE)
+
+    public void getImage(HttpServletResponse response) throws IOException {
+
+		ClassPathResource imgFile = new ClassPathResource("static/uploads/5996aef8-3831-460b-b0bb-37749c404cdd.jpg");
+
+        response.setContentType(MediaType.ALL_VALUE);
+        StreamUtils.copy(imgFile.getInputStream(), response.getOutputStream());
+    }
 	
 }
