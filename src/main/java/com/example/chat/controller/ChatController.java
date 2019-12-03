@@ -368,4 +368,17 @@ public class ChatController {
         StreamUtils.copy(imgFile.getInputStream(), response.getOutputStream());
     }
 	
+	
+	@RequestMapping(value = "/sid",
+            produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> getImage() throws IOException {
+
+		ClassPathResource imgFile = new ClassPathResource("static/uploads/5996aef8-3831-460b-b0bb-37749c404cdd.jpg");
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(imgFile.getInputStream()));
+    }
+	
 }
