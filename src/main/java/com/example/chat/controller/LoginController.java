@@ -11,6 +11,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import com.example.chat.data.CustomApiResponse;
+import com.example.chat.data.Player;
 import com.example.chat.data.UserSession;
 import com.example.chat.entity.User;
 import com.example.chat.service.UserService;
@@ -28,6 +33,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class LoginController {
+	
+	public static final Integer limit = 10;
 	
 	@Autowired
 	private UserSession userSession;
@@ -138,6 +145,58 @@ public class LoginController {
 			 return new CustomApiResponse(false, "profile photo uploaded successfully", true);
 		}
     }
+	
+	@GetMapping("/memory-management") // //new annotation since 4.3
+    public @ResponseBody CustomApiResponse memoryManagement(HttpServletRequest request) {	
+		ArrayList<Double> list = new ArrayList<Double>();
+		
+		ArrayList<Double> list2 = new ArrayList<Double>();
+		
+		for (int i=0;i<10;i++) {
+			list.add(Math.random());
+		} 
+		
+		list2 = list;
+		
+		System.out.println(list);
+		
+		System.out.println(list2);
+		
+		list = null;
+		
+		System.out.println(list);
+		
+		System.out.println(list2);
+		String name = "thilak ramu";
+		String name2 = new String("thilak ramu");
+		
+		if (name == name2.intern()) {
+			System.out.println("Equals");
+		} else {
+			System.out.println("Not Equals");
+		}
+		
+		return new CustomApiResponse(false, "profile photo uploaded successfully", true);
+    }
+	
+	@GetMapping("/comparator")
+	@ResponseBody public CustomApiResponse comparator() {
+		
+		List<Player> footballTeam = new ArrayList<>();
+	    Player player1 = new Player(59, "John", 20);
+	    Player player2 = new Player(67, "Roger", 22);
+	    Player player3 = new Player(45, "Steven", 24);
+	    footballTeam.add(player1);
+	    footballTeam.add(player2);
+	    footballTeam.add(player3);
+	   
+	    System.out.println("Before Sorting : " + footballTeam);
+	    Collections.sort(footballTeam);
+	    System.out.println("After Sorting : " + footballTeam);
+	    
+		return new CustomApiResponse(false, "profile photo uploaded successfully", true);
+	}
+	
 
 
 }

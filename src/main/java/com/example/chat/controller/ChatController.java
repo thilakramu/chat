@@ -2,6 +2,8 @@ package com.example.chat.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.URL;
 import java.time.LocalTime;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
@@ -42,7 +45,9 @@ import com.example.chat.data.ChatData;
 import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
 import com.example.chat.entity.ChatMessage;
+import com.example.chat.entity.UserPrivateFile;
 import com.example.chat.model.ChatModel;
+import com.google.common.net.HttpHeaders;
 
 @Controller
 public class ChatController {
@@ -57,6 +62,9 @@ public class ChatController {
 	
 	@Autowired
 	private AppProperties appProperties;
+	
+	@Autowired
+	private Environment environment;
 	
 	@RequestMapping("/threads")
 	@ResponseBody
@@ -365,20 +373,64 @@ public class ChatController {
 		ClassPathResource imgFile = new ClassPathResource("static/uploads/5996aef8-3831-460b-b0bb-37749c404cdd.jpg");
 
         response.setContentType(MediaType.ALL_VALUE);
+        
+        System.out.println(MediaType.IMAGE_JPEG);
+        
+		/*
+		 * URL url = new URL("/download/file"); System.out.println(url.toString());
+		 */
+        
         StreamUtils.copy(imgFile.getInputStream(), response.getOutputStream());
     }
 	
 	
 	@RequestMapping(value = "/sid",
             produces = MediaType.ALL_VALUE)
-    public ResponseEntity<InputStreamResource> getImage() throws IOException {
-
+    public ResponseEntity<InputStreamResource> getImage(HttpServletRequest request) throws IOException {
+		System.out.println(InetAddress.getLocalHost().getHostName());
+		
+		System.out.println(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() + "/someImage.jpg");
+		
 		ClassPathResource imgFile = new ClassPathResource("static/uploads/5996aef8-3831-460b-b0bb-37749c404cdd.jpg");
 
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(new InputStreamResource(imgFile.getInputStream()));
+    }
+	
+	@RequestMapping(value = "/download/file/{uuid}",
+            produces = MediaType.ALL_VALUE)
+
+    public ResponseEntity<InputStreamResource> getImageByUUid(HttpServletResponse response, @PathVariable String uuid) throws IOException {
+		
+		
+		String sql = "select cm from UserPrivateFile cm where uuid=:uuid";
+		Query query = entityManager.createQuery(sql, UserPrivateFile.class);
+		query.setParameter("uuid", uuid);
+		
+		UserPrivateFile file = (UserPrivateFile) query.getSingleResult();
+		
+		if (file != null) {
+			ClassPathResource imgFile = new ClassPathResource(appProperties.getUploadpath() + "/" + file.getFileName());
+
+			return ResponseEntity
+	                .ok()
+	                .contentType(MediaType.parseMediaType(file.getFileType()))
+					/*
+					 * .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +
+					 * file.getFileName()+ "\"")
+					 */
+	                .body(new InputStreamResource(imgFile.getInputStream()));
+		} else {
+			ClassPathResource imgFile = new ClassPathResource("");
+			return ResponseEntity
+	                .ok()
+	                .contentType(MediaType.ALL)
+	                .body(new InputStreamResource(imgFile.getInputStream()));
+		}
+			
+		
     }
 	
 }

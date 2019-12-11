@@ -10,6 +10,7 @@ public class AppProperties {
 	private String name;
     private String description;
     private String uploadDir;
+    private String uploadpath;
     
     public String getName() {
 		return name;
@@ -28,6 +29,14 @@ public class AppProperties {
 	}
 	public void setUploadDir(String uploadDir) {
 		this.uploadDir = uploadDir;
+	}
+	
+	public String getUploadpath() {
+		return uploadpath;
+	}
+	
+	public void setUploadpath(String uploadpath) {
+		this.uploadpath = uploadpath;
 	}
 
 }
