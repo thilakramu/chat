@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -46,6 +48,7 @@ import com.example.chat.data.CustomApiResponse;
 import com.example.chat.data.UserSession;
 import com.example.chat.entity.ChatMessage;
 import com.example.chat.entity.UserPrivateFile;
+import com.example.chat.entity.UserPrivateFileRepository;
 import com.example.chat.model.ChatModel;
 import com.google.common.net.HttpHeaders;
 
@@ -56,6 +59,9 @@ public class ChatController {
 	
 	@Autowired 	
 	private ChatModel chatModel;
+	
+	@Autowired
+	private UserPrivateFileRepository userPrivateFileRepo;
 
 	@Autowired
 	private UserSession userSession;
@@ -68,23 +74,46 @@ public class ChatController {
 	
 	@RequestMapping("/threads")
 	@ResponseBody
-    public CustomApiResponse playThread() {
+    public CustomApiResponse playThread() throws ExecutionException {
 
-        ExecutorService service = Executors.newSingleThreadExecutor();
-        service.execute(() -> {
-            
-	        try {
-	            	
-	            Thread.sleep(20000);
-	            
-	            System.out.println("This will print after 20 seconds");
-	            System.out.println(Thread.currentThread().getName());
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            
-	        }
-            
-        });
+		/*
+		 * ExecutorService service = Executors.newSingleThreadExecutor();
+		 * service.execute(() -> {
+		 * 
+		 * try {
+		 * 
+		 * Thread.sleep(20000);
+		 * 
+		 * System.out.println("This will print after 20 seconds");
+		 * System.out.println(Thread.currentThread().getName()); } catch (Exception e) {
+		 * e.printStackTrace();
+		 * 
+		 * }
+		 * 
+		 * });
+		 */
+        
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        Future<String> future = executorService.submit(() -> { 
+        	Thread.sleep(2000);
+        	return "Hello World";
+        	});
+        // some operations
+        String result;
+        try {
+        	while(!future.isDone()) {
+        	    System.out.println("Loading...");
+        	    Thread.sleep(300);
+        	}
+        	
+        	result = future.get();
+			System.out.println(result);
+
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        
+        
 
         return new CustomApiResponse(true, "saved successfully", false);
     }
@@ -402,14 +431,9 @@ public class ChatController {
 	@RequestMapping(value = "/download/file/{uuid}",
             produces = MediaType.ALL_VALUE)
 
-    public ResponseEntity<InputStreamResource> getImageByUUid(HttpServletResponse response, @PathVariable String uuid) throws IOException {
-		
-		
-		String sql = "select cm from UserPrivateFile cm where uuid=:uuid";
-		Query query = entityManager.createQuery(sql, UserPrivateFile.class);
-		query.setParameter("uuid", uuid);
-		
-		UserPrivateFile file = (UserPrivateFile) query.getSingleResult();
+    public ResponseEntity<?> getImageByUUid(HttpServletResponse response, @PathVariable String uuid) throws IOException {
+				
+		UserPrivateFile file = userPrivateFileRepo.findByUuid(uuid);
 		
 		if (file != null) {
 			ClassPathResource imgFile = new ClassPathResource(appProperties.getUploadpath() + "/" + file.getFileName());
@@ -424,6 +448,7 @@ public class ChatController {
 	                .body(new InputStreamResource(imgFile.getInputStream()));
 		} else {
 			ClassPathResource imgFile = new ClassPathResource("");
+			
 			return ResponseEntity
 	                .ok()
 	                .contentType(MediaType.ALL)
